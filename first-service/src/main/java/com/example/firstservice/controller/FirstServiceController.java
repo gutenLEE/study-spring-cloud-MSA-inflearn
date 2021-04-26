@@ -35,8 +35,9 @@ public class FirstServiceController {
     }
 
     @GetMapping("/check")
-    public String check(HttpServletRequest request) {
-        log.info("Server port={}", request.getServerPort());
-        return String.format("Hi, there. This is a message from First Service on PORT %s", env.getProperty("local.server.port"));
+    public String check() {
+/*        log.info("Server port={}", request.getServerPort());
+        return String.format("Hi, there. This is a message from First Service on PORT %s", env.getProperty("local.server.port"));*/
+        return "뭐가 문제야";
     }
 }
