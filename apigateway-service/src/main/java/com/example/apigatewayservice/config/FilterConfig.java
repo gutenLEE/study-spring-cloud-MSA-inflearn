@@ -11,10 +11,10 @@ public class FilterConfig {
     //@Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route(r -> r.path("/first-service/**")
-                            .filters(f -> f.addRequestHeader("first-request", "first-request-header")
+                .route(r -> r.path("/first-service/**") // path를 확인하고
+                            .filters(f -> f.addRequestHeader("first-request", "first-request-header") // filter를 적용해서
                             .addResponseHeader("first-response", "first-response-header"))
-                            .uri("http://localhost:8081"))
+                            .uri("http://localhost:8081")) // uri로 이동시켜준다.
                 .route(r -> r.path("/second-service/**")
                         .filters(f -> f.addRequestHeader("second-request", "second-request-header")
                                 .addResponseHeader("second-response", "second-response-header"))
