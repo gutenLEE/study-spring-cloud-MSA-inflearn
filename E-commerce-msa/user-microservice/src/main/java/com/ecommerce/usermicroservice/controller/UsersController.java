@@ -1,21 +1,27 @@
 package com.ecommerce.usermicroservice.controller;
 
+import com.ecommerce.usermicroservice.service.UserService;
+import com.ecommerce.usermicroservice.vo.RequestUser;
+import com.ecommerce.usermicroservice.vo.UserDto;
 import org.apache.catalina.startup.UserConfig;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/")
 public class UsersController {
 
     private Environment env;
+    private UserService userService;
 
     @Autowired
-    public UsersController(Environment env) {
+    public UsersController(Environment env, UserService userService) {
         this.env = env;
+        this.userService = userService;
     }
 
     @Autowired
@@ -29,5 +35,17 @@ public class UsersController {
     @GetMapping("/welcome")
     public String welcome() {
         return env.getProperty("greeting.message");
+    }
+
+    @PostMapping("/users")
+    public String createUser(@RequestBody RequestUser user) {
+
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        UserDto userDto = mapper.map(user, UserDto.class);
+        userService.createUser(userDto);
+
+        return "create user method is called";
     }
 }
