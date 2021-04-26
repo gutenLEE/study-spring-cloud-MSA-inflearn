@@ -1,5 +1,5 @@
 server:
-  port: 9001
+  port: 8081
 # 0은 랜덤 포트
 spring:
   application:
