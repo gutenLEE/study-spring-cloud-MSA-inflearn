@@ -38,6 +38,11 @@ spring:
                 baseMessage: Hi, there!
                 preLogger: true
                 PostLogger: true
+        - id: catalog-service
+          uri: lb://CATALOG-SERVICE
+          predicates:
+            - Path=/catalog-service/**
+
       default-filters:
         - name: GlobalFilter
           args:
