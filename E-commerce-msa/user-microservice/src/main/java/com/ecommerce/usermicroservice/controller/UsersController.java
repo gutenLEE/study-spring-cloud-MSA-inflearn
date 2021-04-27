@@ -2,12 +2,15 @@ package com.ecommerce.usermicroservice.controller;
 
 import com.ecommerce.usermicroservice.service.UserService;
 import com.ecommerce.usermicroservice.vo.RequestUser;
+import com.ecommerce.usermicroservice.vo.ResponseUser;
 import com.ecommerce.usermicroservice.vo.UserDto;
 import org.apache.catalina.startup.UserConfig;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +41,7 @@ public class UsersController {
     }
 
     @PostMapping("/users")
-    public String createUser(@RequestBody RequestUser user) {
+    public ResponseEntity<ResponseUser> createUser(@RequestBody RequestUser user) {
 
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -46,6 +49,8 @@ public class UsersController {
         UserDto userDto = mapper.map(user, UserDto.class);
         userService.createUser(userDto);
 
-        return "create user method is called";
+        ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseUser);
     }
 }
