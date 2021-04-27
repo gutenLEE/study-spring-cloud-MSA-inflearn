@@ -1,10 +1,12 @@
 package com.ecommerce.usermicroservice.controller;
 
+import com.ecommerce.usermicroservice.jpa.UserEntity;
 import com.ecommerce.usermicroservice.service.UserService;
 import com.ecommerce.usermicroservice.vo.RequestUser;
 import com.ecommerce.usermicroservice.vo.ResponseUser;
 import com.ecommerce.usermicroservice.vo.UserDto;
 import org.apache.catalina.startup.UserConfig;
+import org.bouncycastle.math.raw.Mod;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
-@RequestMapping("/")
+@RequestMapping("/user-service")
 public class UsersController {
 
     private Environment env;
@@ -32,7 +37,8 @@ public class UsersController {
 
     @GetMapping("/health_check")
     public String status() {
-        return "It's Working in User Service";
+
+        return String.format("It's Working in User Service on PORT %s", env.getProperty("local.server.port"));
     }
 
     @GetMapping("/welcome")
@@ -53,4 +59,28 @@ public class UsersController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseUser);
     }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<ResponseUser>> getUsers() {
+        Iterable<UserEntity> userList = userService.getUserAll();
+
+        List<ResponseUser> result = new ArrayList<>();
+
+        userList.forEach(v -> {
+            result.add(new ModelMapper().map(v, ResponseUser.class));
+        });
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<ResponseUser> getUsers(@PathVariable("userId") String userId) {
+        UserDto userDto = userService.getUserByUserId(userId);
+
+        ResponseUser returnValue = new ModelMapper().map(userDto, ResponseUser.class);
+
+        return ResponseEntity.status(HttpStatus.OK).body(returnValue);
+    }
+
+
 }
