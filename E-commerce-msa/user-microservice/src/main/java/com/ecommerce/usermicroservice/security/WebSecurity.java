@@ -34,7 +34,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable()
-                .authorizeRequests().antMatchers("/users/**").permitAll()
+                .authorizeRequests().antMatchers("/users/**", "/actuator/**").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/**")
                 .hasIpAddress("10.120.120.144")
