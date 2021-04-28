@@ -34,17 +34,19 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable()
+                .authorizeRequests().antMatchers("/users/**").permitAll()
+                .and()
                 .authorizeRequests().antMatchers("/**")
-                .hasIpAddress("192.168.0.12")
+                .hasIpAddress("10.120.120.144")
                 .and()
                 .addFilter(getAuthenticationFilter());
-        //        .authorizeRequests().antMatchers("/users/**").permitAll();
+
 
         http.headers().frameOptions().disable();
     }
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter();
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager(), userService, env);
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;

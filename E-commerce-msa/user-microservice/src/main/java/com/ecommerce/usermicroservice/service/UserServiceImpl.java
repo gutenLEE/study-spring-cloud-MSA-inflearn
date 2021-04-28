@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,5 +75,18 @@ public class UserServiceImpl implements UserService{
         }
         return new User(userEntity.getEmail(), userEntity.getEncryptedPwd(), true, true, true, true,
                 new ArrayList<>()); // arrayList : 로그인 되었을 때 권한 추가하는 자리.
+    }
+
+    @Override
+    public UserDto getUserDetailsByEmail(String email) {
+
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(email);
+        }
+
+        UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
+        return userDto;
     }
 }
