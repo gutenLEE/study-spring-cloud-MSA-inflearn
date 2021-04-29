@@ -1,2 +1,7 @@
 encrypt:
-  key: asdfasieubf23dfg234234234234234
+  key-store:
+    location: file:\study-workspace\study-spring-cloud-microservice-inflearn\E-commerce-msa\keystore\apiEncryptionKey.jks
+    password: 12341234
+    alias: apiEncryptionKey
+
+#  key: asdfasieubf23dfg234234234234234

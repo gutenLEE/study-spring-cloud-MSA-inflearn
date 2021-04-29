@@ -10,12 +10,17 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +31,17 @@ public class UserServiceImpl implements UserService{
 
     UserRepository userRepository;
     BCryptPasswordEncoder passwordEncoder;
+    RestTemplate restTemplate;
+    Environment env;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) { // 빈 생성한 적이 없기 때문에 에러 발생하는 것이다. 그래서 프로젝트를 실행했을때 가장 먼저 호출되는 main 메서드에 추가
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, 
+                           Environment env,
+                           RestTemplate restTemplate) { // 빈 생성한 적이 없기 때문에 에러 발생하는 것이다. 그래서 프로젝트를 실행했을때 가장 먼저 호출되는 main 메서드에 추가
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.restTemplate = restTemplate;
+        this.env = env;
     }
 
     @Override
@@ -55,8 +66,16 @@ public class UserServiceImpl implements UserService{
 
         UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
 
-        List<ResponseOrder> orders = new ArrayList<>();
-        userDto.setOrders(orders);
+        //List<ResponseOrder> orders = new ArrayList<>();
+        /* Using as rest Template */
+        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+        ResponseEntity<List<ResponseOrder>> orderListResponse =
+                restTemplate.exchange(orderUrl, HttpMethod.GET, null,
+                                            new ParameterizedTypeReference<List<ResponseOrder>>() {
+                });
+
+        List<ResponseOrder> orderList = orderListResponse.getBody();
+        userDto.setOrders(orderList);
 
         return userDto;
     }
