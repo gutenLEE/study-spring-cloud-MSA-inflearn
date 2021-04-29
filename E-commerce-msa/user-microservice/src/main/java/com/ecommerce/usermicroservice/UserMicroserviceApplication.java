@@ -1,5 +1,6 @@
 package com.ecommerce.usermicroservice;
 
+import com.ecommerce.usermicroservice.error.FeignErrorDecoder;
 import feign.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -37,4 +38,9 @@ public class UserMicroserviceApplication {
     public Logger.Level feignLoggerLevel() {
         return Logger.Level.FULL;
     }
+
+/*    @Bean
+    public FeignErrorDecoder feignErrorDecoder() {
+        return new FeignErrorDecoder();
+    }*/
 }

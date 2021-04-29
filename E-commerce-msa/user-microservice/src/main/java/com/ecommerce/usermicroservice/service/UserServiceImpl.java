@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService{
 
     OrderServiceClient orderServiceClient;
 
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, 
                            Environment env,
@@ -88,13 +89,15 @@ public class UserServiceImpl implements UserService{
         /* using a feign client */
         // 코드가 간결하나 직접 코드 짠 사람이 아니면 코드 파악이 어려울 수도 있다.
         /* Feign exception Handling */
-        List<ResponseOrder> ordersList = orderServiceClient.getOrders(userId);
-
-        try {
+/*        try {
             userDto.setOrders(ordersList);
         } catch (FeignException exception) {
             log.error(exception.getMessage());
-        }
+        }*/
+
+        /* ErrorDecoder */
+        List<ResponseOrder> ordersList = orderServiceClient.getOrders(userId);
+        userDto.setOrders(ordersList);
 
         return userDto;
     }
