@@ -43,7 +43,8 @@ greeting:
   message: Welcome to the Simple E-Commerce
 logging:
   level:
-    com.ecommerce.user-microservice: DEBUG
+#    com.ecommerce.user-microservice: DEBUG
+    com.ecommerce.user-microservice.client: DEBUG
 
 #token:
 #  expiration_time: 86400000

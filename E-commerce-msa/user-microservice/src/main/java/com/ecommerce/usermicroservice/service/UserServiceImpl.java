@@ -1,10 +1,13 @@
 package com.ecommerce.usermicroservice.service;
 
+import com.ecommerce.usermicroservice.client.OrderServiceClient;
 import com.ecommerce.usermicroservice.jpa.UserEntity;
 import com.ecommerce.usermicroservice.jpa.UserRepository;
 import com.ecommerce.usermicroservice.vo.ResponseOrder;
 import com.ecommerce.usermicroservice.vo.UserDto;
 import com.netflix.discovery.converters.Auto;
+import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.math.raw.Mod;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -27,21 +30,27 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService{
 
     UserRepository userRepository;
     BCryptPasswordEncoder passwordEncoder;
+
     RestTemplate restTemplate;
     Environment env;
+
+    OrderServiceClient orderServiceClient;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, 
                            Environment env,
-                           RestTemplate restTemplate) { // 빈 생성한 적이 없기 때문에 에러 발생하는 것이다. 그래서 프로젝트를 실행했을때 가장 먼저 호출되는 main 메서드에 추가
+                           RestTemplate restTemplate,
+                           OrderServiceClient orderServiceClient) { // 빈 생성한 적이 없기 때문에 에러 발생하는 것이다. 그래서 프로젝트를 실행했을때 가장 먼저 호출되는 main 메서드에 추가
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.restTemplate = restTemplate;
         this.env = env;
+        this.orderServiceClient = orderServiceClient;
     }
 
     @Override
@@ -68,14 +77,24 @@ public class UserServiceImpl implements UserService{
 
         //List<ResponseOrder> orders = new ArrayList<>();
         /* Using as rest Template */
-        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+        /*String orderUrl = String.format(env.getProperty("order_service.url"), userId);
         ResponseEntity<List<ResponseOrder>> orderListResponse =
                 restTemplate.exchange(orderUrl, HttpMethod.GET, null,
                                             new ParameterizedTypeReference<List<ResponseOrder>>() {
                 });
 
-        List<ResponseOrder> orderList = orderListResponse.getBody();
-        userDto.setOrders(orderList);
+        List<ResponseOrder> orderList = orderListResponse.getBody();*/
+
+        /* using a feign client */
+        // 코드가 간결하나 직접 코드 짠 사람이 아니면 코드 파악이 어려울 수도 있다.
+        /* Feign exception Handling */
+        List<ResponseOrder> ordersList = orderServiceClient.getOrders(userId);
+
+        try {
+            userDto.setOrders(ordersList);
+        } catch (FeignException exception) {
+            log.error(exception.getMessage());
+        }
 
         return userDto;
     }
