@@ -7,6 +7,8 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+
+
 spring:
   application:
     name: apigateway-service
@@ -17,6 +19,10 @@ spring:
     password: guest
   cloud:
     gateway:
+      discovery:
+        locator:
+#          lower-case-service-id: true
+          enabled: true
       routes:
         - id: user-service
           uri: lb://USER-SERVICE

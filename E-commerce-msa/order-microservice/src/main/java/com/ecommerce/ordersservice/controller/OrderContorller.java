@@ -2,6 +2,7 @@ package com.ecommerce.ordersservice.controller;
 
 import com.ecommerce.ordersservice.dto.OrderDto;
 import com.ecommerce.ordersservice.jpa.OrderEntity;
+import com.ecommerce.ordersservice.messagequeue.KafkaProducer;
 import com.ecommerce.ordersservice.service.OrderService;
 import com.ecommerce.ordersservice.vo.RequestOrder;
 import com.ecommerce.ordersservice.vo.ResponseOrder;
@@ -25,9 +26,11 @@ public class OrderContorller {
 
     Environment env;
     OrderService orderService;
+    KafkaProducer kafkaProducer;
 
     @Autowired
-    public OrderContorller(Environment env, OrderService orderService) {
+    public OrderContorller(Environment env, OrderService orderService, KafkaProducer kafkaProducer) {
+        this.kafkaProducer = kafkaProducer;
         this.env = env;
         this.orderService = orderService;
     }
@@ -48,7 +51,10 @@ public class OrderContorller {
 
         ResponseOrder responseOrder = mapper.map(createdOrder, ResponseOrder.class);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseOrder);
+        // kafka에 message를 넣는 과정
+        kafkaProducer.send("example-catalog-topic", orderDto);
+
+       return ResponseEntity.status(HttpStatus.CREATED).body(responseOrder);
     }
 
     @GetMapping("/{userId}/orders")
